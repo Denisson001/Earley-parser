@@ -2,7 +2,7 @@
 #include <iostream>
 
 TSymbolSet TSolver::_parseSymbolSet(const std::string& str) const {
-    return { str.begin(), str.end() }; // отрицательные?
+    return { str.begin(), str.end() };
 }
 
 TRule TSolver::_parseRule(const std::string& str) const {

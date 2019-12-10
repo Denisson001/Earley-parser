@@ -1,68 +1,58 @@
 #include "earley_parser.h"
 
-#include <limits>
-
-TSymbol TEarleyParser::_TState::getNextSymbol() const {
-    if (rule_position >= result.size()) {
-        return _NAN;
-    }
-    return result[rule_position];
-}
-
-void TEarleyParser::_TState::readSymbol() {
-    ++rule_position;
-}
-
-#include <iostream>
+#include <algorithm>
 
 bool TEarleyParser::solve(const TData &data) {
     _init(data);
 
     for (size_t i = 0; i < _states_array.size(); ++i) {
         _scan(i, data.word);
-        while (true) {
-            /*std::cout << i << std::endl;
-            for (const auto state : _states_array[i]) {
-                std::cout << state.nonterminal << " -> ";
-                for (auto x : state.result) std::cout << x << ' ';
-                std::cout << "    ";
-                std::cout << state.rule_position;
-                std::cout << std::endl;
-            }*/
-            const auto saved_size = _states_array[i].size();
+        size_t saved_size;
+        do {
+            saved_size = _states_array[i].size();
             _predict(i, data);
             _complete(i);
-            if (saved_size == _states_array[i].size()) {
-                break;
-            }
-        }
+        } while (saved_size != _states_array[i].size());
     }
 
-    _TState finish_state;
-    finish_state.nonterminal   = _fake_nonterminal;
-    finish_state.result        = { data.start_symbol };
-    finish_state.rule_position = 1;
-    finish_state.prefix_len    = 0;
-    return _containsState(data.word.size(), finish_state);
+    _fake_state.readSymbol();
+    return _containsState(data.word.size(), _fake_state);
 }
 
 void TEarleyParser::_init(const TData &data) {
-    _states_array.resize(data.word.size() + 1);
-    _TState start_state;
-    start_state.nonterminal   = _fake_nonterminal;
-    start_state.result        = { data.start_symbol };
-    start_state.rule_position = 0;
-    start_state.prefix_len    = 0;
-    _states_array[0].push_back(start_state);
+    const auto _fake_nonterminal = (*std::max_element(data.nonterminals.begin(), data.nonterminals.end())) + 1;
+    _fake_state = { _fake_nonterminal, { data.start_symbol }, 0, 0, data.rules.size() };
+    _word_length = data.word.size() + 1;
+    _initArrays(data);
+    _insertState(0, _fake_state);
+}
+
+void TEarleyParser::_initArrays(const TData &data) {
+    _states_array.resize(_word_length);
+    _used_states.resize(_word_length);
+    const auto calcStateNumber = [this](size_t rule_number, size_t word_pos) {
+        return rule_number * _word_length + word_pos;
+    };
+
+    for (size_t index = 0; index < _word_length; ++index) {
+        auto rules_count = data.rules.size() + 1;
+        _used_states[index].resize(rules_count * _word_length);
+        for (size_t word_pos = 0; word_pos < _word_length; ++word_pos) {
+            for (size_t rule_number = 0; rule_number < rules_count - 1; ++rule_number) {
+                _used_states[index][calcStateNumber(rule_number, word_pos)].resize(data.rules[rule_number].result.size() + 1, false);
+            }
+            _used_states[index][calcStateNumber(rules_count - 1, word_pos)].resize(_fake_state.result.size() + 1, false);
+        }
+    }
 }
 
 void TEarleyParser::_scan(size_t index, const TWord& word) {
     if (index == 0) {
         return;
     }
-    for (const auto& state : _states_array[index - 1]) {
+    for (auto&& state : _states_array[index - 1]) {
         if (state.rule_position != state.result.size()) {
-            const auto current_symbol = state.result[state.rule_position];
+            const auto current_symbol = state.getNextSymbol();
             if (current_symbol == word[index - 1]) {
                 auto new_state = state;
                 new_state.readSymbol();
@@ -75,15 +65,12 @@ void TEarleyParser::_scan(size_t index, const TWord& word) {
 void TEarleyParser::_predict(size_t index, const TData& data) {
     const auto saved_size = _states_array[index].size();
     for (size_t i = 0; i < saved_size; ++i) {
-        const auto state = _states_array[index][i]; // КОПИЯ
-        if (data.nonterminals.count(state.getNextSymbol())) {
-            for (const auto& rule : data.rules) {
-                if (rule.nonterminal == state.getNextSymbol()) {
-                    _TState new_state;
-                    new_state.nonterminal   = rule.nonterminal;
-                    new_state.result        = rule.result;
-                    new_state.rule_position = 0;
-                    new_state.prefix_len    = index;
+        const auto current_symbol = _states_array[index][i].getNextSymbol();
+        if (data.nonterminals.count(current_symbol)) {
+            for (size_t rule_number = 0; rule_number < data.rules.size(); ++rule_number) {
+                const auto& rule = data.rules[rule_number];
+                if (rule.nonterminal == current_symbol) {
+                    _TState new_state = { rule.nonterminal, rule.result, 0, index, rule_number };
                     _insertState(index, new_state);
                 }
             }
@@ -94,10 +81,9 @@ void TEarleyParser::_predict(size_t index, const TData& data) {
 void TEarleyParser::_complete(size_t index) {
     const auto saved_size = _states_array[index].size();
     for (size_t i = 0; i < saved_size; ++i) {
-        const auto state = _states_array[index][i]; // КОПИЯ
+        const auto state = _states_array[index][i];
         if (state.rule_position == state.result.size()) {
-            for (size_t j = 0; j < _states_array[state.prefix_len].size(); ++j) { // вроде не плохо
-                //std::cout << j << ' ' << _states_array[state.prefix_len].size() << ' ' << state.prefix_len << " sfdsadfasdf\n";
+            for (size_t j = 0; j < _states_array[state.prefix_len].size(); ++j) {
                 const auto& current_state = _states_array[state.prefix_len][j];
                 if (current_state.getNextSymbol() == state.nonterminal) {
                     auto new_state = current_state;
@@ -109,26 +95,19 @@ void TEarleyParser::_complete(size_t index) {
     }
 }
 
-void TEarleyParser::_insertState(size_t index, const TEarleyParser::_TState &state) { // == вынести
-    for (const auto& current_state : _states_array[index]) {
-        if (state.nonterminal   == current_state.nonterminal   &&
-            state.result        == current_state.result        &&
-            state.rule_position == current_state.rule_position &&
-            state.prefix_len    == current_state.prefix_len) {
-            return;
-        }
+void TEarleyParser::_insertState(size_t index, const TEarleyParser::_TState &state) {
+    const auto state_number = _calcStateNumber(state);
+    if (!_used_states[index][state_number][state.rule_position]) {
+        _states_array[index].emplace_back(state);
+        _used_states[index][state_number][state.rule_position] = true;
     }
-    _states_array[index].emplace_back(state);
 }
 
 bool TEarleyParser::_containsState(size_t index, const TEarleyParser::_TState &state) const {
-    for (const auto& current_state : _states_array[index]) {
-        if (state.nonterminal   == current_state.nonterminal   &&
-            state.result        == current_state.result        &&
-            state.rule_position == current_state.rule_position &&
-            state.prefix_len    == current_state.prefix_len) {
-            return 1;
-        }
-    }
-    return 0;
+    const auto state_number = _calcStateNumber(state);
+    return _used_states[index][state_number][state.rule_position];
+}
+
+size_t TEarleyParser::_calcStateNumber(const TEarleyParser::_TState &state) const {
+    return state.rule_number * _word_length + state.prefix_len;
 }

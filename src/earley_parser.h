@@ -9,24 +9,33 @@ public:
     bool solve(const TData& data);
 
 private:
-    const static TSymbol _fake_nonterminal = std::numeric_limits<TSymbol>::max() - 1;
-
     struct _TState : public TRule {
         const static TSymbol _NAN = std::numeric_limits<TSymbol>::max();
         size_t rule_position;
         size_t prefix_len;
+        size_t rule_number;
+
+        _TState() {}
+        _TState(TSymbol, const TWord&, size_t, size_t, size_t);
         TSymbol getNextSymbol() const;
-        void readSymbol();
+        void    readSymbol();
     };
 
-    typedef std::vector<_TState> _TStates;
+    typedef std::vector< std::vector< std::vector<bool> > > _TUsedStates;
+    typedef std::vector< std::vector<_TState> >             _TStatesArray;
 
-    std::vector<_TStates> _states_array;
+    _TStatesArray _states_array;
+    _TUsedStates  _used_states;
+    _TState       _fake_state;
+    size_t        _word_length;
 
     void _init(const TData& data);
+    void _initArrays(const TData& data);
+    void _insertState(size_t index, const _TState& state);
+    bool _containsState(size_t index, const _TState& state) const;
+    size_t _calcStateNumber(const _TState& state) const;
+
     void _scan(size_t index, const TWord& word);
     void _predict(size_t index, const TData& data);
     void _complete(size_t index);
-    void _insertState(size_t index, const _TState& state);
-    bool _containsState(size_t index, const _TState& state) const;
 };

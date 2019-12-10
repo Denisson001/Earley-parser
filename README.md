@@ -5,13 +5,13 @@
 - Собрать проект (директория **`src`**)
 
 ```
-g++ -std=c++11 main.cpp solver.cpp earley_parser.cpp -o main
+g++ -std=c++11 main.cpp solver.cpp earley_parser.cpp state.cpp -o main
 ```
 
 - Собрать и запустить тесты (директория **`tests`**)
 
 ```
-g++ -std=c++11 tests.cpp ../src/solver.cpp ../src/earley_parser.cpp -o tests
+g++ -std=c++11 tests.cpp ../src/solver.cpp ../src/earley_parser.cpp ../src/state.cpp -o tests
 ./tests
 ```
 
@@ -21,14 +21,14 @@ g++ -std=c++11 tests.cpp ../src/solver.cpp ../src/earley_parser.cpp -o tests
 
 - Директория **`src`**:
   - **`main`** - точка входа.
-  - **`solver`** - реализация алгоритма.
-  - **`data`** - формат входных данных.
+  - **`earley_parser`** - реализация алгоритма.
+  - **`solver`** - работы с вводом, запуск решения.
+  - **`rule`, `state`** - описание внешних структур.
 
 - Директория **`tests`**:
   - **`tests.cfg`** - конфиг тестов.
   - **`tests.cpp`** - запуск тестов. 
-  - **`sample`** - тесты из задания. 
-  - **`base`** - мои тесты.
+  - **`base`** - тесты.
   - **`description.md`** - описание тестов.
 
 ## Algo
