@@ -1,10 +1,18 @@
 #include "solver.h"
+
 #include <iostream>
 
+/*
+ * Формирует множество символов из строки
+ */
 TSymbolSet TSolver::_parseSymbolSet(const std::string& str) const {
     return { str.begin(), str.end() };
 }
 
+
+/*
+ * Формирует правило по строке
+ */
 TRule TSolver::_parseRule(const std::string& str) const {
     TRule rule;
     rule.nonterminal = str[0];
@@ -16,10 +24,16 @@ TRule TSolver::_parseRule(const std::string& str) const {
     return rule;
 }
 
+/*
+ * Формирует массив символов из строки
+ */
 TWord TSolver::_parseWord(const std::string &str) const {
     return { str.begin(), str.end() };
 }
 
+/*
+ * Читает данные из input_stream  
+ */
 TData TSolver::readData(std::istream& input_stream) const { // чек корректность
     TData data;
     std::string line;
@@ -43,6 +57,9 @@ TData TSolver::readData(std::istream& input_stream) const { // чек корре
     return data;
 }
 
+/*
+ * Запускает Earley parser на данных data 
+ */
 bool TSolver::solve(const TData &data) const {
     TEarleyParser earley_parser;
     return earley_parser.solve(data);

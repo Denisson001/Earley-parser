@@ -19,6 +19,10 @@ bool TEarleyParser::solve(const TData &data) {
     return _containsState(data.word.size(), _fake_state);
 }
 
+/*
+ * Инициализирует _fake_state и _word_length
+ * Добавляет _fake_state в множество с номером 0
+ */
 void TEarleyParser::_init(const TData &data) {
     const auto _fake_nonterminal = (*std::max_element(data.nonterminals.begin(), data.nonterminals.end())) + 1;
     _fake_state = { _fake_nonterminal, { data.start_symbol }, 0, 0, data.rules.size() };
@@ -27,6 +31,15 @@ void TEarleyParser::_init(const TData &data) {
     _insertState(0, _fake_state);
 }
 
+/* 
+ * Инициализирует _states_array и _used_states
+ * _used_states[index][state_number][rule_position] - трехмерный массив:
+ *  - index         - номер множества в _states_array 
+ *  - state_number  - в этом измерении зашиты сразу два параметра - rule_number, word_pos
+ *    - rule_number - номер правила в массиве data.rules 
+ *    - word_pos    - длина префикса ситуации state.prefix_len 
+ *  - rule_position - позиция в правиле
+ */
 void TEarleyParser::_initArrays(const TData &data) {
     _states_array.resize(_word_length);
     _used_states.resize(_word_length);
@@ -41,6 +54,7 @@ void TEarleyParser::_initArrays(const TData &data) {
             for (size_t rule_number = 0; rule_number < rules_count - 1; ++rule_number) {
                 _used_states[index][calcStateNumber(rule_number, word_pos)].resize(data.rules[rule_number].result.size() + 1, false);
             }
+            // отдельно учитываем дополнительное состояние _fake_state
             _used_states[index][calcStateNumber(rules_count - 1, word_pos)].resize(_fake_state.result.size() + 1, false);
         }
     }
@@ -95,6 +109,9 @@ void TEarleyParser::_complete(size_t index) {
     }
 }
 
+/*
+ * Добавляет ситуацию state в множество _states_array[index], если ее там еще не было
+ */
 void TEarleyParser::_insertState(size_t index, const TEarleyParser::_TState &state) {
     const auto state_number = _calcStateNumber(state);
     if (!_used_states[index][state_number][state.rule_position]) {
@@ -103,11 +120,17 @@ void TEarleyParser::_insertState(size_t index, const TEarleyParser::_TState &sta
     }
 }
 
+/*
+ * Проверяет лежит ли ситуация state в множествe _states_array[index]
+ */
 bool TEarleyParser::_containsState(size_t index, const TEarleyParser::_TState &state) const {
     const auto state_number = _calcStateNumber(state);
     return _used_states[index][state_number][state.rule_position];
 }
 
+/*
+ * Вычисляет номер ситуации state по state.rule_number и state.prefix_len
+ */
 size_t TEarleyParser::_calcStateNumber(const TEarleyParser::_TState &state) const {
     return state.rule_number * _word_length + state.prefix_len;
 }
