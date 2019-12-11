@@ -50,30 +50,51 @@ private:
     /*
      * Массив множеств правил, аналог множеств D из описания алгоритма
      */
-    _TStatesArray _states_array;
-
+    _TStatesArray       _states_array;
 
     /*
      * Массив флагов для _states_array для быстрой проверки принадлежности состояния множеству
      */
-    _TUsedStates  _used_states;
+    _TUsedStates        _used_states;
 
     /*
      * Дополнительное правило и соответствующее состояние, которое используется в инициализации
      */
-    _TState       _fake_state;
+    _TState             _fake_state;
 
     /*
      * Длина слова word из data
      */
-    size_t        _word_length;
+    size_t              _word_length;
+
+    /*
+     * Максимальный возможный номер ситуации
+     * Правила нумерации описаны в методах _initArrays и _calcStateNumber
+     */
+    size_t              _max_state_number;
+
+    /*
+     * Последняя обработанная ситуация из множества ситуаций в _predict
+     */
+    size_t              _last_processed_state;
+
+    /*
+     * Массив номеров последних обработанных ситуаций в _complete
+     * Для каждой ситуации из множества ситуаций свой номер
+     */
+    std::vector<size_t> _last_processed_states;
 
     /*
      * Инициализация
      */
     void _init(const TData& data);
     void _initArrays(const TData& data);
-    
+
+    /*
+     * Сбрасывает данные, используемые для запоминания в _predict и _complete, на новой итерации внешнего цикла
+     */
+    void _resetMemoizationData();
+
     /*
      * Добавляет ситуацию state в множество _states_array[index] 
      */
@@ -93,6 +114,7 @@ private:
 
     /*
      * Методы из алгоритма
+     * index - номер множества состояний
      */
     void _scan(size_t index, const TWord& word);
     void _predict(size_t index, const TData& data);

@@ -6,6 +6,7 @@ bool TEarleyParser::solve(const TData &data) {
     _init(data);
 
     for (size_t i = 0; i < _states_array.size(); ++i) {
+        _resetMemoizationData();
         _scan(i, data.word);
         size_t saved_size;
         do {
@@ -47,8 +48,10 @@ void TEarleyParser::_initArrays(const TData &data) {
         return rule_number * _word_length + word_pos;
     };
 
+    const auto rules_count = data.rules.size() + 1;
+    _max_state_number = _word_length * rules_count;
+
     for (size_t index = 0; index < _word_length; ++index) {
-        auto rules_count = data.rules.size() + 1;
         _used_states[index].resize(rules_count * _word_length);
         for (size_t word_pos = 0; word_pos < _word_length; ++word_pos) {
             for (size_t rule_number = 0; rule_number < rules_count - 1; ++rule_number) {
@@ -58,6 +61,14 @@ void TEarleyParser::_initArrays(const TData &data) {
             _used_states[index][calcStateNumber(rules_count - 1, word_pos)].resize(_fake_state.result.size() + 1, false);
         }
     }
+}
+
+/*
+ * Сбрасывает данные, используемые для запоминания в _predict и _complete, на новой итерации внешнего цикла
+ */
+void TEarleyParser::_resetMemoizationData() {
+    _last_processed_state = 0;
+    _last_processed_states.assign(_max_state_number, 0);
 }
 
 void TEarleyParser::_scan(size_t index, const TWord& word) {
@@ -77,33 +88,33 @@ void TEarleyParser::_scan(size_t index, const TWord& word) {
 }
 
 void TEarleyParser::_predict(size_t index, const TData& data) {
-    const auto saved_size = _states_array[index].size();
-    for (size_t i = 0; i < saved_size; ++i) {
-        const auto current_symbol = _states_array[index][i].getNextSymbol();
-        if (data.nonterminals.count(current_symbol)) {
-            for (size_t rule_number = 0; rule_number < data.rules.size(); ++rule_number) {
-                const auto& rule = data.rules[rule_number];
-                if (rule.nonterminal == current_symbol) {
-                    _TState new_state = { rule.nonterminal, rule.result, 0, index, rule_number };
-                    _insertState(index, new_state);
-                }
+    for (; _last_processed_state < _states_array[index].size(); ++_last_processed_state) {
+        const auto current_symbol = _states_array[index][_last_processed_state].getNextSymbol();
+        if (!data.nonterminals.count(current_symbol)) {
+            continue;
+        }
+        for (size_t rule_number = 0; rule_number < data.rules.size(); ++rule_number) {
+            const auto& rule = data.rules[rule_number];
+            if (rule.nonterminal == current_symbol) {
+                _TState new_state = { rule.nonterminal, rule.result, 0, index, rule_number };
+                _insertState(index, new_state);
             }
         }
     }
 }
 
 void TEarleyParser::_complete(size_t index) {
-    const auto saved_size = _states_array[index].size();
-    for (size_t i = 0; i < saved_size; ++i) {
+    for (size_t i = 0; i < _states_array[index].size(); ++i) {
         const auto state = _states_array[index][i];
-        if (state.rule_position == state.result.size()) {
-            for (size_t j = 0; j < _states_array[state.prefix_len].size(); ++j) {
-                const auto& current_state = _states_array[state.prefix_len][j];
-                if (current_state.getNextSymbol() == state.nonterminal) {
-                    auto new_state = current_state;
-                    new_state.readSymbol();
-                    _insertState(index, new_state);
-                }
+        if (state.rule_position != state.result.size()) {
+            continue;
+        }
+        for (; _last_processed_states[i] < _states_array[state.prefix_len].size(); ++_last_processed_states[i]) {
+            const auto& current_state = _states_array[state.prefix_len][_last_processed_states[i]];
+            if (current_state.getNextSymbol() == state.nonterminal) {
+                auto new_state = current_state;
+                new_state.readSymbol();
+                _insertState(index, new_state);
             }
         }
     }
