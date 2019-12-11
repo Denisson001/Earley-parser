@@ -1,0 +1,12 @@
+x=x<y=y
+ABCD
+xyz<>=
+A
+A->B<B
+A->C>C
+A->D=D
+B->C>C
+C->D=D
+D->x
+D->y
+D->z

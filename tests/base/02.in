@@ -1,6 +1,8 @@
-(())()()()(()())
+aaabbbb
+ST
+ab
 S
-()
-S
-S->(S)S
-S->#
+S->aS
+S->T
+T->aTb
+T->#

@@ -14,8 +14,13 @@ TSymbolSet TSolver::_parseSymbolSet(const std::string& str) const {
  * Формирует правило по строке
  */
 TRule TSolver::_parseRule(const std::string& str) const {
+    if (str.size() < 4) {
+        return {};
+    }
+
     TRule rule;
     rule.nonterminal = str[0];
+    // skip ->
     for (size_t i = 3; i < str.size(); ++i) {
         if (str[i] != _eps) {
             rule.result.push_back(str[i]);
@@ -32,9 +37,15 @@ TWord TSolver::_parseWord(const std::string &str) const {
 }
 
 /*
- * Читает данные из input_stream  
+ * Читает данные из input_stream
+ * Формат ввода:
+ *   - слово, которое алгоритм проверит на принадлежность языку
+ *   - строка - множество всех нетерминалов
+ *   - строка - множество всех терминалов
+ *   - стартовый символ - нетерминал
+ *   - правила в формате {нетерминал}->{последовательность символов}
  */
-TData TSolver::readData(std::istream& input_stream) const { // чек корректность
+TData TSolver::readData(std::istream& input_stream) const {
     TData data;
     std::string line;
 

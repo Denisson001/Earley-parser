@@ -1,0 +1,15 @@
+a+b/(c-d)+c*b-(a+(b-c)/b)
+STD
+abcd()+-/*
+S
+S->S+T
+S->S-T
+S->T
+T->T*D
+T->T/D
+T->D
+D->(S)
+D->a
+D->b
+D->c
+D->d

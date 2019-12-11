@@ -1,0 +1,14 @@
+x-(x*y)/z+x*x
+STD
+xyz()+-/*
+S
+S->S+T
+S->S-T
+S->T
+T->T*D
+T->T/D
+T->D
+D->(S)
+D->x
+D->y
+D->z

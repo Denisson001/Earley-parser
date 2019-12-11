@@ -5,7 +5,8 @@
 void solve() {
     TSolver solver;
     const auto data = solver.readData(std::cin);
-    std::cout << solver.solve(data);
+    const auto result = solver.solve(data);
+    solver.printResult(result);
 }
 
 int main() {

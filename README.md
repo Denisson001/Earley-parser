@@ -1,4 +1,4 @@
-# Earley-parser
+# Earley parser
 
 ## Usage example
 
@@ -14,8 +14,6 @@ g++ -std=c++11 main.cpp solver.cpp earley_parser.cpp state.cpp -o main
 g++ -std=c++11 tests.cpp ../src/solver.cpp ../src/earley_parser.cpp ../src/state.cpp -o tests
 ./tests
 ```
-
-# TODO : 
 
 ## Project
 
@@ -34,7 +32,7 @@ g++ -std=c++11 tests.cpp ../src/solver.cpp ../src/earley_parser.cpp ../src/state
 ## Algo
 
 - В исходниках есть комментарии к коду.
-- Пример формата ввода можно посмотреть в тестах 
+- Пример **формата ввода** можно посмотреть в тестах или в `solver.cpp`.
 - **Временная сложность** алгоритма:
   - Обозначим за `|w|` длину слова, принадлежность языку которого проверяет алгоритм  
   - Размер грамматики будем считать константой, обозначим ее за `|G|`

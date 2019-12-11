@@ -12,15 +12,31 @@
  */
 class TSolver {
 public:
+    enum TResult {
+        TRUE,
+        FALSE,
+        INCORRECT_DATA
+    };
+
     /*
      * Читает данные из input_stream  
      */
     TData readData(std::istream& input_stream) const;
     
+    /* 
+     * Проверяет данные на корректность
+     */
+    TResult checkDataCorrectness(const TData& data) const;
+
     /*
      * Запускает Earley parser на данных data 
      */
-    bool solve(const TData& data) const;
+    TResult solve(const TData& data) const;
+
+    /*
+     * Преобразует TResult в строку
+     */
+    void printResult(const TResult& result) const;
 
 private:
 	/*
@@ -31,7 +47,7 @@ private:
     /*
      * Формирует массив символов из строки
      */
-    TWord      _parseWord(const std::string& str)      const;
+    TWord _parseWord(const std::string& str) const;
     
     /*
      * Формирует множество символов из строки
@@ -41,5 +57,5 @@ private:
     /*
      * Формирует правило по строке
      */
-    TRule      _parseRule(const std::string& str)      const;
+    TRule _parseRule(const std::string& str) const;
 };
