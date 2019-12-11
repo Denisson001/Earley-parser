@@ -4,6 +4,7 @@
 #include "earley_parser.h"
 
 #include <string>
+#include <limits>
 
 /*
  * Класс позволяет
@@ -12,6 +13,11 @@
  */
 class TSolver {
 public:
+    /*
+     * TRUE           - слово лежит в языке
+     * FALSE          - слово не лежит в языке
+     * INCORRECT_DATA - некорректные данные
+     */
     enum TResult {
         TRUE,
         FALSE,
@@ -22,11 +28,6 @@ public:
      * Читает данные из input_stream  
      */
     TData readData(std::istream& input_stream) const;
-    
-    /* 
-     * Проверяет данные на корректность
-     */
-    TResult checkDataCorrectness(const TData& data) const;
 
     /*
      * Запускает Earley parser на данных data 
@@ -36,13 +37,23 @@ public:
     /*
      * Преобразует TResult в строку
      */
-    void printResult(const TResult& result) const;
+    std::string resultToString(const TResult& result) const;
 
 private:
 	/*
 	 * Обозначение пустого символа
 	 */
     static const TSymbol _eps = '#';
+
+    /*
+     * Обозначение некорректного символа
+     */
+    static const TSymbol _NAN = std::numeric_limits<TSymbol>::max();
+
+    /*
+     * Проверяет данные на корректность
+     */
+    bool _checkDataCorrectness(const TData& data) const;
 
     /*
      * Формирует массив символов из строки

@@ -112,7 +112,7 @@ void TEarleyParser::_complete(size_t index) {
 /*
  * Добавляет ситуацию state в множество _states_array[index], если ее там еще не было
  */
-void TEarleyParser::_insertState(size_t index, const TEarleyParser::_TState &state) {
+void TEarleyParser::_insertState(size_t index, const _TState &state) {
     const auto state_number = _calcStateNumber(state);
     if (!_used_states[index][state_number][state.rule_position]) {
         _states_array[index].emplace_back(state);
@@ -123,7 +123,7 @@ void TEarleyParser::_insertState(size_t index, const TEarleyParser::_TState &sta
 /*
  * Проверяет лежит ли ситуация state в множествe _states_array[index]
  */
-bool TEarleyParser::_containsState(size_t index, const TEarleyParser::_TState &state) const {
+bool TEarleyParser::_containsState(size_t index, const _TState &state) const {
     const auto state_number = _calcStateNumber(state);
     return _used_states[index][state_number][state.rule_position];
 }
@@ -131,6 +131,6 @@ bool TEarleyParser::_containsState(size_t index, const TEarleyParser::_TState &s
 /*
  * Вычисляет номер ситуации state по state.rule_number и state.prefix_len
  */
-size_t TEarleyParser::_calcStateNumber(const TEarleyParser::_TState &state) const {
+size_t TEarleyParser::_calcStateNumber(const _TState &state) const {
     return state.rule_number * _word_length + state.prefix_len;
 }

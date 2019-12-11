@@ -1,11 +1,11 @@
 #pragma once
 
 #include <vector>
-#include <unordered_set>
+#include <set>
 
 typedef std::size_t          TSymbol;
 typedef std::vector<TSymbol> TWord;
-typedef std::unordered_set<TSymbol>    TSymbolSet;
+typedef std::set<TSymbol>    TSymbolSet;
 
 /*
  * Структура правила

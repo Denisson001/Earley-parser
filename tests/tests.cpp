@@ -8,7 +8,7 @@
 
 /*
  * Структура конфига тестов
- *     dirs - директории с тестами
+ * dirs     - директории с тестами
  * test_cnt - число тестов в директории
  * */
 struct TCfg {
@@ -63,7 +63,8 @@ std::string runTest(const std::string& test_file) {
     TSolver solver;
     const auto data = solver.readData(file);
     file.close();
-    return std::to_string(solver.solve(data));
+    const auto result = solver.solve(data);
+    return solver.resultToString(result);
 }
 
 /*
@@ -72,7 +73,7 @@ std::string runTest(const std::string& test_file) {
 std::string readTestResult(const std::string& test_file) {
     std::ifstream file(test_file);
     std::string result;
-    file >> result;
+    getline(file, result);
     file.close();
     return result;
 }
