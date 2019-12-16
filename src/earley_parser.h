@@ -24,12 +24,12 @@ private:
      */
     struct _TState : public TRule {
         const static TSymbol _NAN = std::numeric_limits<TSymbol>::max();
-        size_t rule_position;
-        size_t prefix_len;
-        size_t rule_number;
+        std::size_t rule_position;
+        std::size_t prefix_len;
+        std::size_t rule_number;
 
         _TState() {}
-        _TState(TSymbol, const TWord&, size_t, size_t, size_t);
+        _TState(TSymbol, const TWord&, std::size_t, std::size_t, std::size_t);
         
         /*
          * Возвращает символ из правой части правила, на который указывает rule_position
@@ -46,43 +46,44 @@ private:
 
     typedef std::vector< std::vector< std::vector<bool> > > _TUsedStates;
     typedef std::vector< std::vector<_TState> >             _TStatesArray;
+    typedef std::size_t                                     _TIndex;
 
     /*
      * Массив множеств правил, аналог множеств D из описания алгоритма
      */
-    _TStatesArray       _states_array;
+    _TStatesArray        _states_array;
 
     /*
      * Массив флагов для _states_array для быстрой проверки принадлежности состояния множеству
      */
-    _TUsedStates        _used_states;
+    _TUsedStates         _used_states;
 
     /*
      * Дополнительное правило и соответствующее состояние, которое используется в инициализации
      */
-    _TState             _fake_state;
+    _TState              _fake_state;
 
     /*
      * Длина слова word из data
      */
-    size_t              _word_length;
+    std::size_t          _word_length;
 
     /*
      * Максимальный возможный номер ситуации
      * Правила нумерации описаны в методах _initArrays и _calcStateNumber
      */
-    size_t              _max_state_number;
+    _TIndex              _max_state_number;
 
     /*
      * Последняя обработанная ситуация из множества ситуаций в _predict
      */
-    size_t              _last_processed_state;
+    _TIndex              _last_processed_state;
 
     /*
      * Массив номеров последних обработанных ситуаций в _complete
      * Для каждой ситуации из множества ситуаций свой номер
      */
-    std::vector<size_t> _last_processed_states;
+    std::vector<_TIndex> _last_processed_states;
 
     /*
      * Инициализация
@@ -98,25 +99,25 @@ private:
     /*
      * Добавляет ситуацию state в множество _states_array[index] 
      */
-    void _insertState(size_t index, const _TState& state);
+    void _insertState(_TIndex index, const _TState& state);
 
 
     /*
      * Проверяет лежит ли ситуация state в множествe _states_array[index] 
      */
-    bool _containsState(size_t index, const _TState& state) const;
+    bool _containsState(_TIndex index, const _TState& state) const;
     
 
     /*
      * Вычисляет номер ситуации state, используется для работы с _used_states 
      */
-    size_t _calcStateNumber(const _TState& state) const;
+    std::size_t _calcStateNumber(const _TState& state) const;
 
     /*
      * Методы из алгоритма
      * index - номер множества состояний
      */
-    void _scan(size_t index, const TWord& word);
-    void _predict(size_t index, const TData& data);
-    void _complete(size_t index);
+    void _scan(_TIndex index, const TWord& word);
+    void _predict(_TIndex index, const TData& data);
+    void _complete(_TIndex index);
 };

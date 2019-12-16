@@ -1,3 +1,11 @@
+# Sample tests
+
+1. Первая грамматика из примера. `RESULT: CORRECT`
+2. Первая грамматика из примера. `RESULT: INCORRECT`
+3. Вторая грамматика из примера. `RESULT: CORRECT`
+4. Вторая грамматика из примера. `RESULT: CORRECT`
+5. Вторая грамматика из примера. `RESULT: INCORRECT`
+
 # Base tests
 
 1. Грамматика для слов вида `a..ab..b`, где число букв `a` не меньше числа букв `b`. `RESULT: CORRECT`

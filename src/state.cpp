@@ -3,7 +3,8 @@
 /*
  * Copy constructor
  */
-TEarleyParser::_TState::_TState(TSymbol nonterminal, const TWord& result, size_t rule_position, size_t prefix_len, size_t rule_number) :
+TEarleyParser::_TState::_TState(TSymbol nonterminal, const TWord& result, std::size_t rule_position,
+                                std::size_t prefix_len, std::size_t rule_number) :
         TRule{nonterminal, result},
         rule_position(rule_position),
         prefix_len(prefix_len),

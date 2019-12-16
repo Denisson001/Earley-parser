@@ -26,7 +26,8 @@ g++ -std=c++11 tests.cpp ../src/solver.cpp ../src/earley_parser.cpp ../src/state
 - Директория **`tests`**:
   - **`tests.cfg`** - конфиг тестов.
   - **`tests.cpp`** - запуск тестов. 
-  - **`base`** - тесты.
+  - **`base`** - тесты
+  - **`sample`** - тесты из задания
   - **`description.md`** - описание тестов.
 
 ## Algo
