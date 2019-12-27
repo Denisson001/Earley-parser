@@ -71,6 +71,10 @@ void TEarleyParser::_resetMemoizationData() {
     _last_processed_states.assign(_max_state_number, 0);
 }
 
+
+/*
+ * Scan из алгоритма Эрли
+ */
 void TEarleyParser::_scan(_TIndex index, const TWord& word) {
     if (index == 0) {
         return;
@@ -87,6 +91,10 @@ void TEarleyParser::_scan(_TIndex index, const TWord& word) {
     }
 }
 
+/*
+ * Predict из алгоритма Эрли
+ * _last_processed_state реализует идею запоминания
+ */
 void TEarleyParser::_predict(_TIndex index, const TData& data) {
     for (; _last_processed_state < _states_array[index].size(); ++_last_processed_state) {
         const auto current_symbol = _states_array[index][_last_processed_state].getNextSymbol();
@@ -103,6 +111,10 @@ void TEarleyParser::_predict(_TIndex index, const TData& data) {
     }
 }
 
+/*
+ * Complete из алгоритма Эрли
+ * _last_processed_states реализует идею запоминания
+ */
 void TEarleyParser::_complete(_TIndex index) {
     for (size_t i = 0; i < _states_array[index].size(); ++i) {
         const auto state = _states_array[index][i];
